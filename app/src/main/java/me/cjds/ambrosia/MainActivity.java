@@ -3,8 +3,12 @@ package me.cjds.ambrosia;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +31,13 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.titlebackgroundcolor));
+        }
+
+
+        startService(new Intent(this, NotificationService.class));
     }
 
 
@@ -77,6 +88,7 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
     @Override
     public boolean onSearchRequested() {
      //   pauseSomeStuff();
+        stopService(new Intent(this, NotificationService.class));
         Bundle appData = new Bundle();
         //appData.putBoolean(SearchableActivity.JARGON, true);
         startSearch(null, false, appData, false);

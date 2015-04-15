@@ -1,7 +1,14 @@
 <resources>
-    <string name="app_name">Ambrosia</string>
+    <string name="app_name">Rosie</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="search_title">Search</string>
-    <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_search">Rosie</string>
+    <string name="title_activity_recipe">RecipeActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="intro_text">Hello, and welcome to Rosie. She\'s the greatest kitchen assistant you will ever have</string>
+    <string name="name">Enter your name</string>
+    <string name="password">Enter a password</string>
+    <string name="signuptext">Sign Up</string>
+
 </resources>

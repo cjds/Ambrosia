@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.Light">
+       <item name="android:navigationBarColor">#123456</item>
+        <item name="android:windowContentTransitions">true</item>
+
+        <item name="android:colorPrimary">@color/titlebackgroundcolor</item>
+        <item name="android:colorPrimaryDark">@color/titlecolor</item>
+
+        <!-- specify enter and exit transitions -->
+       <!--<item name="android:windowEnterTransition">@transition/explode</item>
+        <item name="android:windowExitTransition">@transition/explode</item>-->
+
+
     </style>
 </resources>
