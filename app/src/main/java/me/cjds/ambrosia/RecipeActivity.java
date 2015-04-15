@@ -3,19 +3,36 @@ package me.cjds.ambrosia;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 
 public class RecipeActivity extends Activity {
 
+
+    void updateViewData(Item i){
+        Log.d("Updating view with item details","");
+        TextView title=new TextView(this);
+        title=(TextView)findViewById(R.id.title_TextView);
+        title.setText(i.title);
+
+        TextView description=new TextView(this);
+        description=(TextView)findViewById(R.id.description_TextView);
+        description.setText(i.description);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Item i = new Item(getIntent().getExtras());
 
+        setContentView(R.layout.activity_recipe);
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        setContentView(R.layout.activity_recipe);
+
+        this.updateViewData(i);
     }
 
 

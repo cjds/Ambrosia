@@ -29,6 +29,10 @@ import java.util.Set;
 
 import android.widget.SearchView.OnCloseListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class SearchActivity extends ListActivity implements SearchView.OnQueryTextListener{
 
@@ -36,15 +40,56 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
     ArrayList<Item> searchvalues = new ArrayList<Item>();
     ArrayAdapter<Item> adapter;
 
+
+
+    //Testing WebHandler.java
+    public void getAllRecipes(){
+        WebHandler webHandler = new WebHandler();
+
+        webHandler.setOnTaskFinishedEvent(new WebHandler.OnTaskExecutionFinished(){
+            @Override
+            public void OnTaskFinishedEvent(ArrayList<String> result){
+                Log.d("Json Result",result.get(0));
+                String json =result.get(0);
+                try {
+                    JSONArray resultArray = new JSONArray(json);
+
+                    values.clear();
+                    for (int i=0; i<resultArray.length();i++){
+                        JSONObject dict = resultArray.getJSONObject(i);
+                        values.add(new Item(dict.getInt("id"), dict.getString("name"),dict.getString("description"),R.drawable.paper));
+                    }
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //Update
+                Log.d("Update List","");
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        ArrayList<String> urlList = new ArrayList<String>();
+        urlList.add("http://rosiechef.herokuapp.com/recipe");
+        ArrayList<String> requestList = new ArrayList<String>();
+        requestList.add("get");
+        ArrayList<String> paramList = new ArrayList<String>();
+//        urlList.add("");
+        ArrayList<String> valueList = new ArrayList<String>();
+//        urlList.add("");
+        webHandler.execute(requestList,urlList,paramList,valueList);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        this.getAllRecipes();
 
         Intent intent = getIntent();
         for(int i=0;i<10;i++)
@@ -53,6 +98,7 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
         searchvalues=values;
         adapter = new MyAZAdapter<Item>(this,R.layout.listitem,values);
         setListAdapter(adapter);
+
     }
 
     public void doMySearch(String query){
@@ -86,12 +132,16 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Item i=searchvalues.get(position);
-        Bundle b =new Bundle();
-        b.putAll(i.getBundleVersion());
+        Item i= searchvalues.get(position);
+        Bundle b = new Bundle();
+//        b.putAll(i.getBundleVersion());
+        b.putInt("id",i.id);
+        b.putString("title",i.title);
+        b.putString("description",i.description);
+        b.putString("image","");
         Intent intent=new Intent(this,RecipeActivity.class);
-
-        startActivity(intent, b);
+        intent.putExtras(b);
+        startActivity(intent);
     }
 
     @Override
