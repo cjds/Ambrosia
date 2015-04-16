@@ -61,6 +61,8 @@ private class DoBackgroundTask extends AsyncTask<String, String, String> {
         String response = "";
         String dataToSend = params[0];
         Log.i("FROM STATS SERVICE", dataToSend);
+
+
       /*  HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost("http://google.com");
         try {
