@@ -57,7 +57,31 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
                     values.clear();
                     for (int i=0; i<resultArray.length();i++){
                         JSONObject dict = resultArray.getJSONObject(i);
-                        values.add(new Item(dict.getInt("id"), dict.getString("name"),dict.getString("description"),R.drawable.paper));
+                        int drawable=R.drawable.paper;
+                        switch(dict.getString("name")){
+                            case "Fried Rice":
+                                break;
+                            case "Beef Stew":
+                                drawable=R.drawable.beefround;
+                                break;
+                            case "Tomato Soup":
+                                drawable=R.drawable.soup;
+                                break;
+                            case "Fried Chicken Batter":
+                                drawable=R.drawable.chickenround;
+                                break;
+                            case "Corn Bread Batter":
+                                break;
+                        }
+
+                        Item item=new Item(dict.getInt("id"), dict.getString("name"),dict.getString("description"),drawable);
+                        JSONArray steps=dict.getJSONArray("steps");
+
+                        for (int j=0; j<steps.length();j++){
+
+                          item.steps.add(steps.getJSONObject(j).getString("step_title"));
+                        }
+                        values.add(item);
                     }
                 }
                 catch (JSONException e) {
@@ -92,9 +116,6 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
         this.getAllRecipes();
 
         Intent intent = getIntent();
-        for(int i=0;i<10;i++)
-            values.add(new Item(i, String.valueOf((char)(65+i))+"Item"+i,"this is a pointless descripiton",R.drawable.paper));
-
         searchvalues=values;
         adapter = new MyAZAdapter<Item>(this,R.layout.listitem,values);
         setListAdapter(adapter);
@@ -139,6 +160,7 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
         b.putString("title",i.title);
         b.putString("description",i.description);
         b.putString("image","");
+        b.putStringArrayList("steps",(ArrayList<String>)i.steps);
         Intent intent=new Intent(this,RecipeActivity.class);
         intent.putExtras(b);
         startActivity(intent);
@@ -260,7 +282,6 @@ public class SearchActivity extends ListActivity implements SearchView.OnQueryTe
         }
 
         public int getSectionForPosition(int position) {
-            Log.v("getSectionForPosition", "called");
             return 0;
         }
 

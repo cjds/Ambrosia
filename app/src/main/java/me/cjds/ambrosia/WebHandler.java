@@ -107,7 +107,6 @@ public class WebHandler extends AsyncTask<ArrayList<String>,Void,ArrayList<Strin
             }
         }
 
-        Log.d("Returning Result ArrayList", Integer.toString(result.size()));
         return result;
     }
 
