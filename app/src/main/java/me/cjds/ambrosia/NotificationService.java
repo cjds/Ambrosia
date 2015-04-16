@@ -18,10 +18,17 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class NotificationService extends Service {
+
+    public static boolean isRecipeCompleteFlag = false;
+
     final String TAG="Magic";
     static int count=0;
     public NotificationService() {
@@ -35,14 +42,13 @@ public class NotificationService extends Service {
 
     @Override
     public void onCreate() {
-        Toast.makeText(this, "Congrats! MyService Created", Toast.LENGTH_LONG).show();
-
+        Toast.makeText(this, "Rosie is preparing your meal", Toast.LENGTH_LONG).show();
         Log.d(TAG, "onCreate");
     }
 
     @Override
     public void onStart(Intent intent, int startId) {
-        Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Background service started", Toast.LENGTH_LONG).show();
         new DoBackgroundTask().execute("");
         Log.d(TAG, "onStart");
     }
@@ -56,47 +62,12 @@ public class NotificationService extends Service {
 
 private class DoBackgroundTask extends AsyncTask<String, String, String> {
 
-    @Override
-    protected String doInBackground(String... params) {
-        String response = "";
-        String dataToSend = params[0];
-        Log.i("FROM STATS SERVICE", dataToSend);
-
-
-      /*  HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost("http://google.com");
-        try {
-            httpPost.setEntity(new StringEntity(dataToSend, "UTF-8"));
-
-            // Set up the header types needed to properly transfer JSON
-            httpPost.setHeader("Content-Type", "application/json");
-            httpPost.setHeader("Accept-Encoding", "application/json");
-            httpPost.setHeader("Accept-Language", "en-US");
-
-            // Execute POST
-            HttpResponse httpResponse = httpClient.execute(httpPost);
-            HttpEntity responseEntity = httpResponse.getEntity();
-            if (responseEntity != null) {
-                //response = EntityUtils.toString(responseEntity);
-            } else {
-                response = "{\"NO DATA:\"NO DATA\"}";
-            }
-        } catch (ClientProtocolException e) {
-            response = "{\"ERROR\":" + e.getMessage().toString() + "}";
-        } catch (IOException e) {
-            response = "{\"ERROR\":" + e.getMessage().toString() + "}";
-        }
-        return response;*/
-        return "";
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
+    public void setupNextNotification(String result){
         Notification.Builder mBuilder =
                 new Notification.Builder(NotificationService.this)
                         .setSmallIcon(android.R.drawable.ic_menu_compass)
-                        .setContentTitle("My notification"+NotificationService.count++)
-                        .setContentText("Hello World!");
+                        .setContentTitle("Rosie "+NotificationService.count++)
+                        .setContentText(result);
         Intent resultIntent = new Intent(NotificationService.this, MainActivity.class);
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -105,7 +76,6 @@ private class DoBackgroundTask extends AsyncTask<String, String, String> {
                         resultIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
-
         mBuilder.setContentIntent(resultPendingIntent);
 
         int mNotificationId = 001;
@@ -118,8 +88,60 @@ private class DoBackgroundTask extends AsyncTask<String, String, String> {
                 new DoBackgroundTask().execute("");
             }
         }, 10000);
-        //Utilities.STATUS = result;
-        //Log.i("FROM STATUS SERVICE: STATUS IS:", Utilities.STATUS);
+    }
+    public void getRecipeStatus(){
+        WebHandler webHandler = new WebHandler();
+
+        webHandler.setOnTaskFinishedEvent(new WebHandler.OnTaskExecutionFinished(){
+
+            @Override
+            public void OnTaskFinishedEvent(ArrayList<String> result){
+                //Log.d("RecipeStatus Result",result.get(0));
+                String json =result.get(0);
+                try {
+                    JSONArray resultArray = new JSONArray(json);
+                    JSONObject dict = resultArray.getJSONObject(0);
+
+//                    Integer new_device_step = dict.get("device_step");
+                    if (dict.getString("device_step").equals("null")){
+                        NotificationService.isRecipeCompleteFlag = true;
+                    }
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        ArrayList<String> urlList = new ArrayList<String>();
+        urlList.add("http://rosiechef.herokuapp.com/device");
+        ArrayList<String> requestList = new ArrayList<String>();
+        requestList.add("get");
+        ArrayList<String> paramList = new ArrayList<String>();
+        paramList.add("device_id");
+        ArrayList<String> valueList = new ArrayList<String>();
+        valueList.add("2");
+        webHandler.execute(requestList,urlList,paramList,valueList);
+    }
+
+    @Override
+    protected String doInBackground(String... params) {
+        String response = "";
+        String dataToSend = params[0];
+//        Log.d("FROM STATS SERVICE", dataToSend);
+        this.getRecipeStatus();
+        return "";
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+
+        Log.d("ONPOSTNOTIF2 =", result);
+        if (!NotificationService.isRecipeCompleteFlag){
+            this.setupNextNotification(result);
+        }else{
+            //Kill service
+        }
         super.onPostExecute(result);
     }
 }

@@ -60,11 +60,12 @@ public class WebHandler extends AsyncTask<ArrayList<String>,Void,ArrayList<Strin
             //http://rosiechef.herokuapp.com
 
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-            for(int i=2;i< params[0].size()-1;i+=2){
-                nameValuePairs.add(new BasicNameValuePair(params[0].get(i),params[0].get(i+1)));
+            for(int i=0;i< values.size();i++){
+                nameValuePairs.add(new BasicNameValuePair(keys.get(i),values.get(i)));
             }
             String paramString = URLEncodedUtils.format(nameValuePairs, "utf-8");
             url += "?"+paramString;
+            //Log.d("URL",url);
             HttpGet httpget = new HttpGet(url);
 
             try {
@@ -83,14 +84,16 @@ public class WebHandler extends AsyncTask<ArrayList<String>,Void,ArrayList<Strin
         }
 
         else if(params[0].get(0)=="post"){
-
+//            Log.d("DOING POST",String.valueOf(keys.size()));
             HttpPost httppost;
             ArrayList<NameValuePair> postParameters;
             httppost = new HttpPost(url);
             postParameters = new ArrayList<NameValuePair>();
 
-            for(int i=0;i<keys.size();i++)
-                postParameters.add(new BasicNameValuePair(keys.get(i),values.get(i)));
+            for(int i=0;i<keys.size();i++) {
+                Log.d(keys.get(i), values.get(i));
+                postParameters.add(new BasicNameValuePair(keys.get(i), values.get(i)));
+            }
             try {
                 httppost.setEntity(new UrlEncodedFormEntity(postParameters));
                 response = httpclient.execute(httppost);
